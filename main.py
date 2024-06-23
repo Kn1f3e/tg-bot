@@ -62,7 +62,7 @@ async def add_user_to_list(message: types.Message):
 
 # Хэндлер для всех сообщений
 @dp.message_handler()
-async def handle_message(message: types.Message):
+async def handle_message(message: types.Message ):
     user_id = message.from_user.id
     user_state = get_user_state(user_id)
     print(message.text)
@@ -107,6 +107,8 @@ async def handle_message(message: types.Message):
          save_user_state(user_id, 5)
     elif message.text == 'Сказать "Спасибо" коллегам':
          save_user_state(user_id, 50)
+    elif message.text == 'Собрать фото-мозаику':
+         save_user_state(user_id, 60)
     elif user_state == 4:
         await menu(message)
 
@@ -163,7 +165,31 @@ async def handle_message(message: types.Message):
         save_user_state(user_id, 4)
         await menu(message)
         save_thank_you_step(user_id, 54, message.text )
-
+    elif user_state == 60:
+        # Пользователь готов загрузить фотографии
+        save_user_state(user_id, 61)
+        await message.answer('Загрузите первую фотографию:')
+    elif user_state == 61:
+        # Пользователь загрузил первую фотографию
+        save_user_state(user_id, 62)
+        await message.answer('Загрузите вторую фотографию:')
+    elif user_state == 62:
+        # Пользователь загрузил вторую фотографию
+        save_user_state(user_id, 63)
+        await message.answer('Загрузите третью фотографию:')
+    elif user_state == 63:
+        # Пользователь загрузил третью фотографию
+        save_user_state(user_id, 64)
+        await message.answer('Выберите фотографию для вывода:', reply_markup=types.ReplyKeyboardMarkup(
+            keyboard=[
+                ['Фотография 1', 'Фотография 2', 'Фотография 3']
+            ],
+            resize_keyboard=True
+        ))
+    elif user_state == 64:
+        # Пользователь выбрал фотографию для вывода
+        save_user_state(user_id, 4)
+        await menu(message)
 
 def save_thank_you_step(user_id, step, data):
     cursor.execute('''
@@ -350,7 +376,6 @@ questions = [
         'answer': 'Разработка плана адаптации'
     }
 ]
-
 
 
 if __name__ == '__main__':
